@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* ONPE Brand Colors - Institucional */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 20%;
+
+    /* ONPE Blue - Primary institutional color */
+    --primary: 215 100% 32%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 215 100% 45%;
+    --primary-dark: 215 100% 25%;
+
+    /* ONPE Red - Secondary accent color */
+    --secondary: 348 100% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent for highlights */
+    --accent: 215 85% 92%;
+    --accent-foreground: 215 100% 32%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 215 100% 32%;
+
+    --radius: 0.5rem;
+
+    /* Gradients */
+    --gradient-institutional: linear-gradient(135deg, hsl(215 100% 32%) 0%, hsl(215 100% 45%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(348 100% 45%) 0%, hsl(348 100% 55%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(215 100% 32%) 0%, hsl(215 100% 25%) 50%, hsl(348 100% 45%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 2px 8px rgba(0, 61, 165, 0.08);
+    --shadow-medium: 0 4px 16px rgba(0, 61, 165, 0.12);
+    --shadow-strong: 0 8px 24px rgba(0, 61, 165, 0.16);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 15% 20%;
+    --sidebar-primary: 215 100% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 95%;
+    --sidebar-accent-foreground: 220 15% 20%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 215 100% 32%;
+  }
+
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 0 0% 95%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 215 100% 55%;
+    --primary-foreground: 220 20% 10%;
+    --primary-light: 215 100% 65%;
+    --primary-dark: 215 100% 45%;
+
+    --secondary: 348 100% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 215 70% 20%;
+    --accent-foreground: 215 100% 70%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 215 100% 55%;
+
+    --gradient-institutional: linear-gradient(135deg, hsl(215 100% 45%) 0%, hsl(215 100% 55%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(348 100% 55%) 0%, hsl(348 100% 65%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(215 100% 45%) 0%, hsl(215 100% 35%) 50%, hsl(348 100% 55%) 100%);
+
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+    --sidebar-background: 220 20% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 215 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 20% 20%;
+    --sidebar-ring: 215 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
