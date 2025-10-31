@@ -180,6 +180,36 @@ export const dataAPI = {
     const response = await apiClient.get(`/data/real-votes/${year}`);
     return response.data;
   },
+
+  getVotesByDepartment: async () => {
+    const response = await apiClient.get('/data/votes-by-department');
+    return response.data;
+  },
+
+  getParticipationByYear: async () => {
+    const response = await apiClient.get('/data/participation-by-year');
+    return response.data;
+  },
+
+  getVotesByParty: async () => {
+    const response = await apiClient.get('/data/votes-by-party');
+    return response.data;
+  },
+
+  getModelMetrics: async () => {
+    const response = await apiClient.get('/data/model-metrics');
+    return response.data;
+  },
+
+  getCurrentModelInfo: async () => {
+    const response = await apiClient.get('/data/current-model-info');
+    return response.data;
+  },
+
+  getModelsHistory: async (limit: number = 10) => {
+    const response = await apiClient.get(`/data/models-history?limit=${limit}`);
+    return response.data;
+  },
 };
 
 export default apiClient;
