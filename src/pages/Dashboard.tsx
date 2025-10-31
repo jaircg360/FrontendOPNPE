@@ -1,54 +1,135 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataContext } from '@/contexts/DataContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import BarChartComponent from '@/components/Charts/BarChartComponent';
 import LineChartComponent from '@/components/Charts/LineChartComponent';
 import PieChartComponent from '@/components/Charts/PieChartComponent';
 import RadialChartComponent from '@/components/Charts/RadialChartComponent';
 import TopCandidates from '@/components/Dashboard/TopCandidates';
-import { TrendingUp, Users, FileText, Target } from 'lucide-react';
+import ModelsHistory from '@/components/Dashboard/ModelsHistory';
+import { TrendingUp, Users, FileText, Target, RefreshCw } from 'lucide-react';
+import { dataAPI } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+
+interface DepartmentData {
+  name: string;
+  votos: number;
+}
+
+interface ParticipationData {
+  name: string;
+  participacion: number;
+}
+
+interface PartyData {
+  name: string;
+  value: number;
+}
+
+interface MetricData {
+  name: string;
+  accuracy: number;
+  fill: string;
+}
 
 const Dashboard = () => {
   const { electoralDataStats, modelConfig } = useDataContext();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [barData, setBarData] = useState<DepartmentData[]>([]);
+  const [lineData, setLineData] = useState<ParticipationData[]>([]);
+  const [pieData, setPieData] = useState<PartyData[]>([]);
+  const [radialData, setRadialData] = useState<MetricData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [modelAccuracy, setModelAccuracy] = useState<number | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     if (!electoralDataStats || !electoralDataStats.has_data || !modelConfig.isComplete) {
       navigate('/upload');
+    } else {
+      loadDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [electoralDataStats, modelConfig, navigate]);
 
-  // Mock data for demonstration
-  const barData = [
-    { name: 'Región Norte', votos: 45000 },
-    { name: 'Región Centro', votos: 52000 },
-    { name: 'Región Sur', votos: 38000 },
-    { name: 'Región Este', votos: 41000 },
-    { name: 'Región Oeste', votos: 47000 },
-  ];
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
 
-  const lineData = [
-    { name: '2016', participacion: 75 },
-    { name: '2018', participacion: 78 },
-    { name: '2020', participacion: 82 },
-    { name: '2022', participacion: 79 },
-    { name: '2024', participacion: 85 },
-  ];
+      // Cargar información del modelo actual (incluyendo precisión real)
+      try {
+        const modelInfoResponse = await dataAPI.getCurrentModelInfo();
+        if (modelInfoResponse.success && modelInfoResponse.model_info) {
+          setModelAccuracy(modelInfoResponse.model_info.accuracy);
+        }
+      } catch (err) {
+        console.error('Error cargando info del modelo:', err);
+      }
 
-  const pieData = [
-    { name: 'Partido A', value: 35 },
-    { name: 'Partido B', value: 28 },
-    { name: 'Partido C', value: 22 },
-    { name: 'Partido D', value: 15 },
-  ];
+      // Cargar datos de departamentos
+      const deptResponse = await dataAPI.getVotesByDepartment();
+      if (deptResponse.success && deptResponse.departments) {
+        setBarData(deptResponse.departments);
+      }
 
-  const radialData = [
-    { name: 'Precisión', accuracy: 92, fill: 'hsl(215 100% 32%)' },
-    { name: 'Recall', accuracy: 88, fill: 'hsl(348 100% 45%)' },
-    { name: 'F1-Score', accuracy: 90, fill: 'hsl(215 85% 55%)' },
-  ];
+      // Cargar datos de participación por año
+      const yearResponse = await dataAPI.getParticipationByYear();
+      if (yearResponse.success && yearResponse.years) {
+        setLineData(yearResponse.years);
+      }
+
+      // Cargar datos de partidos
+      const partyResponse = await dataAPI.getVotesByParty();
+      if (partyResponse.success && partyResponse.parties) {
+        setPieData(partyResponse.parties);
+      }
+
+      // Cargar métricas del modelo
+      const metricsResponse = await dataAPI.getModelMetrics();
+      if (metricsResponse.success && metricsResponse.metrics) {
+        setRadialData(metricsResponse.metrics);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error cargando datos del dashboard:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar algunos datos del dashboard",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadDashboardData();
+    setRefreshing(false);
+    toast({
+      title: "Actualizado",
+      description: "Los datos se han actualizado correctamente",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <RefreshCw className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Cargando datos del dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,9 +141,20 @@ const Dashboard = () => {
               Resultados del análisis procesado con Pandas, NumPy, Scikit-Learn y PyTorch
             </p>
           </div>
-          <Badge variant="outline" className="text-sm">
-            Modelo: {modelConfig.modelType || 'No especificado'}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
+            <Badge variant="outline" className="text-sm">
+              Modelo: {modelConfig.modelType || 'No especificado'}
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -107,7 +199,9 @@ const Dashboard = () => {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">94.2%</div>
+            <div className="text-2xl font-bold text-foreground">
+              {modelAccuracy !== null ? `${modelAccuracy.toFixed(1)}%` : '--'}
+            </div>
             <p className="text-xs text-muted-foreground">
               {modelConfig.modelType === 'neural-network' && 'Red Neuronal (PyTorch)'}
               {modelConfig.modelType === 'logistic-regression' && 'Regresión Logística'}
@@ -131,6 +225,11 @@ const Dashboard = () => {
         <LineChartComponent data={lineData} title="Evolución de Participación Electoral" />
         <PieChartComponent data={pieData} title="Porcentaje de Votos por Partido" />
         <RadialChartComponent data={radialData} title="Métricas de Precisión del Modelo" />
+      </div>
+
+      {/* Models History */}
+      <div className="mt-8">
+        <ModelsHistory />
       </div>
 
       {/* Summary Card */}
