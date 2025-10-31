@@ -91,9 +91,22 @@ const TopCandidates = () => {
             'neural-network': 'Red Neuronal (PyTorch)'
           };
           
+          // Formatear fecha de entrenamiento del modelo
+          const trainingDate = firstPred.training_date || firstPred.created_at;
+          const dateObj = new Date(trainingDate);
+          const formattedDate = dateObj.toLocaleString('es-PE', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          });
+          
           setModelInfo({
             type: modelTypeNames[firstPred.model_type] || firstPred.model_type,
-            date: new Date(firstPred.training_date).toLocaleString('es-PE')
+            date: formattedDate
           });
         }
       } else {
